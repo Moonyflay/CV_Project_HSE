@@ -74,8 +74,8 @@ class ImgPreparer():
     
     def downscale(
             self, downscale_limit, 
-            do_blur=True, blur_params={'ksize':(3, 3), 'sigmaX':1.5},
-            apply_style_cmap=True
+            do_blur, blur_params,
+            apply_style_cmap
         ):
         '''
         Reduces the size of the image and prepares laplacians for further upscaling
@@ -174,7 +174,8 @@ class ImgPreparer():
 
     def prepare_imgs(
             self, start_from_gauss=False, 
-            apply_style_cmap=True, downscale_limit=35000):
+            apply_style_cmap=True, downscale_limit=35000,
+            do_blur=True, blur_params={'ksize':(3, 3), 'sigmaX':1.5},):
         '''
         Function prepares original, style and input (trainable) images to style transfer with PyTorch.
 
@@ -186,7 +187,8 @@ class ImgPreparer():
         '''
         self.downscale(
             downscale_limit=downscale_limit,
-            apply_style_cmap=apply_style_cmap
+            apply_style_cmap=apply_style_cmap,
+            do_blur=do_blur, blur_params=blur_params,
         )
         original = self.original.copy()
         style = self.style.copy()

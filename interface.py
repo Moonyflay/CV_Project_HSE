@@ -252,7 +252,8 @@ def search_ws_entry_f():
 def run_transfer():
     global cnn, mean, std
     global num_steps, style_weight, content_weight
-    global preparer, denoising_params
+    global preparer, denoising_paramsm
+    global downscale_limit, apply_style_cmap, from_gauss
     global styled_image, denoised_image, output_list, image_to_save
     global style_layers, content_layers
 
@@ -272,7 +273,10 @@ def run_transfer():
     
     disable_widgets()
     preparer = funcs.ImgPreparer(original_img, style_img)
-    content_img, style_img_, input_img = preparer.prepare_imgs()
+    content_img, style_img_, input_img = preparer.prepare_imgs(
+        start_from_gauss=from_gauss, downscale_limit=downscale_limit, 
+        apply_style_cmap=apply_style_cmap
+    )
     output, output_list = funcs.run_style_transfer(
         cnn, mean, std,
         content_img, style_img_, input_img, 
@@ -409,7 +413,7 @@ def run_upscale():
         img = denoised_image
 
     upscaled_image = preparer.upscale(
-        img, 
+        img, resize_only=resize_only, 
         use_ESRGAN=use_ESRGAN, 
         ESRGAN_weights_path=path_to_ESRGAN
     )
