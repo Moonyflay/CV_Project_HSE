@@ -132,7 +132,6 @@ class ImgPreparer():
             resized = cv2.resize(img, (w, h))
             self.upscaled = upscaled = [img, resized]
             return resized
-
         
         current = img
         upscaled = [current]
@@ -341,8 +340,7 @@ class Normalization(nn.Module):
 def get_style_model_and_losses(
         cnn, normalization_mean, normalization_std,
         style_img, content_img,
-        content_layers=['conv_22'],
-        style_layers=['conv_11', 'conv_12', 'conv_21', 'conv_22', 'conv_31']
+        content_layers, style_layers
     ):
     
     name2idx, idx2name = get_name_idx_dicts(cnn)
@@ -385,12 +383,16 @@ def get_input_optimizer(input_img):
     optimizer = LBFGS([input_img])
     return optimizer
 
-def run_style_transfer(cnn, normalization_mean, normalization_std,
-                       content_img, style_img, input_img, num_steps=300,
-                       style_weight=1e6, content_weight=1):
+def run_style_transfer(
+        cnn, normalization_mean, normalization_std,
+        content_img, style_img, input_img, 
+        content_layers, style_layers,
+        num_steps, style_weight, content_weight
+    ):
 
     model, style_losses, content_losses = get_style_model_and_losses(cnn,
-        normalization_mean, normalization_std, style_img, content_img)
+        normalization_mean, normalization_std, style_img, content_img,
+        content_layers=content_layers, style_layers=style_layers)
 
     input_img.requires_grad_(True)
     model.eval()
