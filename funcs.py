@@ -1,7 +1,4 @@
-import os
 import cv2
-import ipywidgets as widgets
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn 
@@ -10,7 +7,6 @@ import torchvision.transforms as transforms
 
 from torch.optim import LBFGS
 from torchvision.models import vgg19, VGG19_Weights
-from tqdm import tqdm
 
 from ESRGAN import RRDBNet_arch as arch
 
@@ -402,7 +398,6 @@ def run_style_transfer(
 
     imgs=[]
     run = [0]
-    pbar = tqdm(total=num_steps, position=0, leave=True)
     while run[0] <= num_steps:
 
         def closure():
@@ -429,8 +424,8 @@ def run_style_transfer(
 
             # progressbar update
             run[0] += 1
-            pbar.update(1)
-            pbar.set_description(
+            
+            placeholder = (
                 f'Style Loss : {style_score.item():.4}, '
                 f' Content Loss: {content_score.item():.4}'
             )

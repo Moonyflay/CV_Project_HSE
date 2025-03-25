@@ -4,5 +4,4 @@ matplotlib
 numpy
 torch
 torchvision
-tqdm
 Pillow

@@ -269,6 +269,7 @@ def run_transfer():
             f'Please, choose at least one content and one style layer on settings tab'
         )
         return
+    
     disable_widgets()
     preparer = funcs.ImgPreparer(original_img, style_img)
     content_img, style_img_, input_img = preparer.prepare_imgs()
@@ -298,7 +299,7 @@ def run_transfer():
     on_slider_change(slider.get())
 
     if resize_output.get():
-        img_tk = preparer.upscale(img, resize_only=True)
+        img_tk = preparer.upscale(img_tk, resize_only=True)
     img_tk = Image.fromarray(img_tk)
     img_tk.thumbnail((640, 480))   
     img_tk = ImageTk.PhotoImage(image=img_tk)
@@ -324,7 +325,6 @@ def enable_widgets():
     for tab_id in notebook.tabs():
         tab_widget = notebook.nametowidget(tab_id)
         enable_children(tab_widget)
-
 
 def enable_children(frame):
     for widget in frame.winfo_children(): 
