@@ -111,7 +111,6 @@ def load_style_img():
 def reshape_style_label():
     global original_img, style_img   
     root.update_idletasks()
-    width_o = label_image_orig.winfo_width()
     height_o = label_image_orig.winfo_height()
     width_s = style_img.shape[1] 
     height_s = style_img.shape[0]
@@ -145,8 +144,10 @@ def do_blur_change():
     do_blur = bool(do_blur_var.get())
 
 def denoise_change():
-    global denoise
+    global denoise, denoised_image
     denoise = bool(denoise_var.get())
+    resize_miniatures() 
+        
 
 # ------------ Radiobuttons' functions ------------
 
@@ -222,6 +223,7 @@ def h_entry_f():
         new_value = 0.1
     denoising_params['h'] = new_value
     h_label.config(text = f'h: {denoising_params['h']}')
+    resize_miniatures() 
 
 def hcolor_entry_f():
     global denoising_params
@@ -230,6 +232,7 @@ def hcolor_entry_f():
         new_value = 0.1
     denoising_params['hColor'] = new_value
     hcolor_label.config(text = f'hColor: {denoising_params['hColor']}')
+    resize_miniatures() 
 
 def template_ws_entry_f():
     global denoising_params
@@ -238,6 +241,7 @@ def template_ws_entry_f():
         new_value = 1
     denoising_params['templateWindowSize'] = new_value
     template_ws_label.config(text = f'Template Window Size: {denoising_params['templateWindowSize']}')
+    resize_miniatures() 
 
 def search_ws_entry_f():
     global denoising_params
@@ -246,6 +250,7 @@ def search_ws_entry_f():
         new_value = 1
     denoising_params['searchWindowSize'] = new_value
     search_ws_label.config(text = f'Search Window Size: {denoising_params['searchWindowSize']}')
+    resize_miniatures() 
 
 # ------------------ Functions used for tab 3 ------------------
 
@@ -359,12 +364,15 @@ def on_slider_change(idx):
         label_image_progress.image = img_tk
 
 def resize_miniatures():
-    global output_list
+    global output_list, denoised_image
 
     if styled_image is not None:
-        img = style_img.copy()
-        if denoised_image is not None:
+        img = styled_image.copy()
+
+        if denoise:
+            denoised_image = preparer.remove_color_noise(img, denoising_params)
             img = denoised_image.copy()
+
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if resize_output.get():
             img = preparer.upscale(img, resize_only=True)
@@ -389,7 +397,7 @@ def save_path_to_ESRGAN():
 
 def run_upscale():
     global styled_image, denoised_image, upscaled_image
-    global output, image_to_save
+    global output, image_to_save, denoise
     global resize_only, path_to_ESRGAN, use_ESRGAN 
 
     if (use_ESRGAN is not None) and not (os.path.exists(path_to_ESRGAN)):
@@ -409,8 +417,11 @@ def run_upscale():
         return
     disable_widgets()
     img = styled_image.copy()
-    if denoised_image is not None:
-        img = denoised_image
+    if denoise:
+        if denoised_image is not None:
+            img = denoised_image
+        else: 
+            img = preparer.remove_color_noise(styled_image, denoising_params)
 
     upscaled_image = preparer.upscale(
         img, resize_only=resize_only, 
